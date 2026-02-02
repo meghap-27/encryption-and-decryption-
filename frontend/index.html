@@ -1,0 +1,1130 @@
+# encryption-and-decryption-
+ encryption and  decryption using multiple classical cryptographic algorithms, including Caesar cipher,  Vigenère cipher, and simplified RSA. 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoLearn - Interactive Cryptography Education Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Fira+Code:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #151b3d;
+            --bg-card: #1a2142;
+            --accent-primary: #00ff9f;
+            --accent-secondary: #00d4ff;
+            --accent-tertiary: #ff006e;
+            --text-primary: #e8f4f8;
+            --text-secondary: #94a9c9;
+            --border-color: rgba(0, 255, 159, 0.2);
+            --glow: 0 0 20px rgba(0, 255, 159, 0.3);
+            --shadow-elevation: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 159, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 159, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridScroll 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridScroll {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            animation: float 8s infinite;
+            z-index: 1;
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+            10% { 
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Header */
+        header {
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: var(--glow);
+            letter-spacing: 2px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 5px var(--accent-primary));
+            }
+            to {
+                filter: drop-shadow(0 0 20px var(--accent-primary));
+            }
+        }
+
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 159, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        nav a:hover::before {
+            left: 100%;
+        }
+
+        nav a:hover {
+            color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeIn 1s ease-out 0.2s both;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-weight: 300;
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        .hero .cta-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-primary);
+            box-shadow: 0 5px 20px rgba(0, 255, 159, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 255, 159, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 159, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            animation: fadeIn 1s ease-out 0.8s both;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 60px;
+            color: var(--accent-primary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-elevation);
+            border-color: var(--accent-primary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .feature-card:hover .feature-icon {
+            animation: spin 0.6s ease-in-out;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--accent-secondary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Crypto Tool Section */
+        .crypto-tool {
+            padding: 80px 0;
+            background: var(--bg-secondary);
+        }
+
+        .tool-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 50px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-elevation);
+        }
+
+        .algorithm-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .algo-btn {
+            padding: 12px 30px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .algo-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: var(--accent-primary);
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+
+        .algo-btn:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-primary);
+        }
+
+        textarea, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 120px;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 255, 159, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .result-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-primary);
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-secondary);
+            margin-bottom: 15px;
+        }
+
+        .result-text {
+            font-family: 'Fira Code', monospace;
+            padding: 20px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            color: var(--accent-primary);
+            word-wrap: break-word;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Algorithm Info Section */
+        .algo-info {
+            padding: 80px 0;
+        }
+
+        .algo-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .algo-card {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+        }
+
+        .algo-card:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-elevation);
+        }
+
+        .algo-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+        }
+
+        .algo-card .complexity {
+            font-family: 'Fira Code', monospace;
+            color: var(--accent-secondary);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .algo-card ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .algo-card ul li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .algo-card ul li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0 40px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-section h4 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-primary);
+            margin-bottom: 20px;
+        }
+
+        .footer-section p, .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .tool-container {
+                padding: 30px 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Code highlight */
+        .code-block {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 20px 0;
+        }
+
+        .code-block .keyword {
+            color: var(--accent-tertiary);
+        }
+
+        .code-block .function {
+            color: var(--accent-secondary);
+        }
+
+        .code-block .string {
+            color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <script>
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            document.body.appendChild(particle);
+        }
+    </script>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">CRYPTOLEARN</div>
+                <nav>
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#tool">Try It</a>
+                    <a href="#algorithms">Algorithms</a>
+                    <a href="#about">About</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>Master Cryptography<br>Through Practice</h1>
+            <p class="subtitle">An interactive educational platform for learning encryption algorithms<br>from Caesar cipher to RSA</p>
+            <div class="cta-group">
+                <a href="#tool" class="btn btn-primary">Start Learning</a>
+                <a href="#algorithms" class="btn btn-secondary">Explore Algorithms</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Why CryptoLearn?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Multiple Algorithms</h3>
+                    <p>Learn and experiment with Caesar cipher, Vigenère cipher, and RSA encryption. Understand the evolution from classical to modern cryptography through hands-on practice.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💻</div>
+                    <h3>Interactive Learning</h3>
+                    <p>Input your own text, apply encryption algorithms, and see real-time results. Watch as plaintext transforms into ciphertext and back, understanding each step of the process.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Educational Focus</h3>
+                    <p>Designed specifically for students, educators, and cybersecurity beginners. Bridge the gap between theoretical concepts and practical implementation with clear explanations.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>User-Friendly Interface</h3>
+                    <p>Clean, intuitive design makes complex cryptographic concepts accessible. No programming knowledge required to experiment and learn encryption techniques.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Testing & Analysis</h3>
+                    <p>Test different inputs, compare encryption methods, and analyze their strengths and weaknesses. Develop critical thinking about information security.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Modular Design</h3>
+                    <p>Built on clean C++ architecture with modular components. Perfect for understanding software design patterns in cryptographic applications.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Crypto Tool -->
+    <section id="tool" class="crypto-tool">
+        <div class="container">
+            <h2 class="section-title">Try Encryption Live</h2>
+            <div class="tool-container">
+                <div class="algorithm-selector">
+                    <button class="algo-btn active" data-algo="caesar">Caesar Cipher</button>
+                    <button class="algo-btn" data-algo="vigenere">Vigenère Cipher</button>
+                    <button class="algo-btn" data-algo="rsa">RSA (Simplified)</button>
+                </div>
+
+                <div id="caesar-tool" class="tool-panel">
+                    <div class="input-group">
+                        <label>Enter your message:</label>
+                        <textarea id="caesar-input" placeholder="Type your message here...">Hello World</textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Shift value (1-25):</label>
+                        <input type="number" id="caesar-shift" value="3" min="1" max="25">
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="caesarEncrypt()">Encrypt</button>
+                        <button class="btn btn-secondary" onclick="caesarDecrypt()">Decrypt</button>
+                    </div>
+                    <div id="caesar-result" class="result-section">
+                        <h3>Result:</h3>
+                        <div class="result-text" id="caesar-output"></div>
+                    </div>
+                </div>
+
+                <div id="vigenere-tool" class="tool-panel" style="display: none;">
+                    <div class="input-group">
+                        <label>Enter your message:</label>
+                        <textarea id="vigenere-input" placeholder="Type your message here...">Hello World</textarea>
+                    </div>
+                    <div class="input-group">
+                        <label>Keyword:</label>
+                        <input type="text" id="vigenere-key" value="KEY" placeholder="Enter keyword">
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="vigenereEncrypt()">Encrypt</button>
+                        <button class="btn btn-secondary" onclick="vigenereDecrypt()">Decrypt</button>
+                    </div>
+                    <div id="vigenere-result" class="result-section">
+                        <h3>Result:</h3>
+                        <div class="result-text" id="vigenere-output"></div>
+                    </div>
+                </div>
+
+                <div id="rsa-tool" class="tool-panel" style="display: none;">
+                    <div class="input-group">
+                        <label>Enter your message (numbers only for demo):</label>
+                        <input type="text" id="rsa-input" placeholder="Enter a number" value="42">
+                    </div>
+                    <div class="input-group">
+                        <label>Prime p:</label>
+                        <input type="number" id="rsa-p" value="61">
+                    </div>
+                    <div class="input-group">
+                        <label>Prime q:</label>
+                        <input type="number" id="rsa-q" value="53">
+                    </div>
+                    <div class="input-group">
+                        <label>Public exponent e:</label>
+                        <input type="number" id="rsa-e" value="17">
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="rsaEncrypt()">Encrypt</button>
+                        <button class="btn btn-secondary" onclick="rsaDecrypt()">Decrypt</button>
+                        <button class="btn btn-secondary" onclick="generateRSAKeys()">Generate Keys</button>
+                    </div>
+                    <div id="rsa-result" class="result-section">
+                        <h3>Result:</h3>
+                        <div class="result-text" id="rsa-output"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Algorithm Information -->
+    <section id="algorithms" class="algo-info">
+        <div class="container">
+            <h2 class="section-title">Encryption Algorithms Explained</h2>
+            <div class="algo-cards">
+                <div class="algo-card">
+                    <h3>Caesar Cipher</h3>
+                    <p class="complexity">Complexity: O(n) | Type: Substitution Cipher</p>
+                    <p>The Caesar cipher is one of the simplest and most widely known encryption techniques. It's a substitution cipher where each letter in the plaintext is shifted a certain number of places down the alphabet.</p>
+                    <div class="code-block">
+<span class="keyword">char</span> <span class="function">caesarEncrypt</span>(<span class="keyword">char</span> ch, <span class="keyword">int</span> shift) {
+    <span class="keyword">if</span> (isalpha(ch)) {
+        <span class="keyword">char</span> base = isupper(ch) ? <span class="string">'A'</span> : <span class="string">'a'</span>;
+        <span class="keyword">return</span> (ch - base + shift) % 26 + base;
+    }
+    <span class="keyword">return</span> ch;
+}
+                    </div>
+                    <ul>
+                        <li>Historical significance in cryptography</li>
+                        <li>Easy to understand and implement</li>
+                        <li>Vulnerable to brute force (only 25 possible keys)</li>
+                        <li>Foundation for understanding substitution ciphers</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h3>Vigenère Cipher</h3>
+                    <p class="complexity">Complexity: O(n) | Type: Polyalphabetic Cipher</p>
+                    <p>The Vigenère cipher uses a keyword to shift letters by different amounts, making it more secure than Caesar. Each letter of the keyword determines the shift for the corresponding plaintext letter.</p>
+                    <div class="code-block">
+<span class="keyword">string</span> <span class="function">vigenereEncrypt</span>(<span class="keyword">string</span> text, <span class="keyword">string</span> key) {
+    <span class="keyword">string</span> result = <span class="string">""</span>;
+    <span class="keyword">for</span> (<span class="keyword">int</span> i = 0; i < text.length(); i++) {
+        <span class="keyword">int</span> shift = key[i % key.length()] - <span class="string">'A'</span>;
+        result += caesarEncrypt(text[i], shift);
+    }
+    <span class="keyword">return</span> result;
+}
+                    </div>
+                    <ul>
+                        <li>More secure than simple substitution ciphers</li>
+                        <li>Uses polyalphabetic substitution</li>
+                        <li>Resistant to frequency analysis</li>
+                        <li>Keyword length affects security strength</li>
+                    </ul>
+                </div>
+
+                <div class="algo-card">
+                    <h3>RSA Encryption</h3>
+                    <p class="complexity">Complexity: O(log n) | Type: Asymmetric Encryption</p>
+                    <p>RSA is a public-key cryptosystem widely used for secure data transmission. It uses two keys: a public key for encryption and a private key for decryption, based on the mathematical properties of prime numbers.</p>
+                    <div class="code-block">
+<span class="comment">// Key Generation</span>
+n = p * q;
+phi = (p - 1) * (q - 1);
+<span class="comment">// Choose e: gcd(e, phi) = 1</span>
+<span class="comment">// Calculate d: (d * e) mod phi = 1</span>
+
+<span class="comment">// Encryption: c = m^e mod n</span>
+<span class="comment">// Decryption: m = c^d mod n</span>
+                    </div>
+                    <ul>
+                        <li>Foundation of modern secure communication</li>
+                        <li>Uses public and private key pairs</li>
+                        <li>Based on prime factorization difficulty</li>
+                        <li>Essential for SSL/TLS, digital signatures</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="features">
+        <div class="container">
+            <h2 class="section-title">About This Project</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🎓 Educational Mission</h3>
+                    <p>This platform bridges the gap between theoretical cryptography learning and practical implementation. It provides a hands-on environment where students can experiment with encryption algorithms and understand their real-world applications.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🏗️ Project Structure</h3>
+                    <p>The project encompasses algorithm design, implementation, comprehensive testing, and performance analysis. Each component is modular and well-documented, making it an excellent reference for learning software architecture.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🎯 Target Audience</h3>
+                    <p>Designed for computer science students, cybersecurity enthusiasts, educators teaching information security, and anyone beginning their journey into the fascinating world of cryptography and data protection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>CryptoLearn</h4>
+                    <p>An educational platform for hands-on cryptography learning. Making complex encryption concepts accessible to everyone.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#tool">Try It</a>
+                    <a href="#algorithms">Algorithms</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">C++ Source Code</a>
+                    <a href="#">Tutorial Videos</a>
+                    <a href="#">Study Materials</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Learning Path</h4>
+                    <a href="#">Beginner's Guide</a>
+                    <a href="#">Advanced Topics</a>
+                    <a href="#">Best Practices</a>
+                    <a href="#">Security Analysis</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 CryptoLearn - Interactive Cryptography Education Platform | Built for Learning, Security, and Innovation</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Algorithm selector
+        document.querySelectorAll('.algo-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Hide all tool panels
+                document.querySelectorAll('.tool-panel').forEach(panel => panel.style.display = 'none');
+                
+                // Show selected tool panel
+                const algo = this.dataset.algo;
+                document.getElementById(algo + '-tool').style.display = 'block';
+            });
+        });
+
+        // Caesar Cipher Functions
+        function caesarEncrypt() {
+            const text = document.getElementById('caesar-input').value;
+            const shift = parseInt(document.getElementById('caesar-shift').value);
+            const result = caesarCipher(text, shift);
+            showResult('caesar', result);
+        }
+
+        function caesarDecrypt() {
+            const text = document.getElementById('caesar-input').value;
+            const shift = parseInt(document.getElementById('caesar-shift').value);
+            const result = caesarCipher(text, 26 - shift);
+            showResult('caesar', result);
+        }
+
+        function caesarCipher(text, shift) {
+            return text.split('').map(char => {
+                if (char.match(/[a-z]/i)) {
+                    const code = char.charCodeAt(0);
+                    const base = code >= 65 && code <= 90 ? 65 : 97;
+                    return String.fromCharCode(((code - base + shift) % 26) + base);
+                }
+                return char;
+            }).join('');
+        }
+
+        // Vigenère Cipher Functions
+        function vigenereEncrypt() {
+            const text = document.getElementById('vigenere-input').value;
+            const key = document.getElementById('vigenere-key').value.toUpperCase();
+            const result = vigenereCipher(text, key, true);
+            showResult('vigenere', result);
+        }
+
+        function vigenereDecrypt() {
+            const text = document.getElementById('vigenere-input').value;
+            const key = document.getElementById('vigenere-key').value.toUpperCase();
+            const result = vigenereCipher(text, key, false);
+            showResult('vigenere', result);
+        }
+
+        function vigenereCipher(text, key, encrypt) {
+            let result = '';
+            let keyIndex = 0;
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char.match(/[a-z]/i)) {
+                    const code = char.charCodeAt(0);
+                    const base = code >= 65 && code <= 90 ? 65 : 97;
+                    const keyShift = key.charCodeAt(keyIndex % key.length) - 65;
+                    const shift = encrypt ? keyShift : 26 - keyShift;
+                    result += String.fromCharCode(((code - base + shift) % 26) + base);
+                    keyIndex++;
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        // RSA Functions (Simplified)
+        let rsaPublicKey = { n: 0, e: 0 };
+        let rsaPrivateKey = { n: 0, d: 0 };
+
+        function gcd(a, b) {
+            while (b !== 0) {
+                let temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        function modInverse(e, phi) {
+            let m0 = phi, t, q;
+            let x0 = 0, x1 = 1;
+            
+            if (phi === 1) return 0;
+            
+            while (e > 1) {
+                q = Math.floor(e / phi);
+                t = phi;
+                phi = e % phi;
+                e = t;
+                t = x0;
+                x0 = x1 - q * x0;
+                x1 = t;
+            }
+            
+            if (x1 < 0) x1 += m0;
+            return x1;
+        }
+
+        function modPow(base, exp, mod) {
+            let result = 1;
+            base = base % mod;
+            while (exp > 0) {
+                if (exp % 2 === 1) {
+                    result = (result * base) % mod;
+                }
+                exp = Math.floor(exp / 2);
+                base = (base * base) % mod;
+            }
+            return result;
+        }
+
+        function generateRSAKeys() {
+            const p = parseInt(document.getElementById('rsa-p').value);
+            const q = parseInt(document.getElementById('rsa-q').value);
+            const e = parseInt(document.getElementById('rsa-e').value);
+            
+            const n = p * q;
+            const phi = (p - 1) * (q - 1);
+            
+            if (gcd(e, phi) !== 1) {
+                showResult('rsa', 'Error: e and φ(n) must be coprime. Try different values.');
+                return;
+            }
+            
+            const d = modInverse(e, phi);
+            
+            rsaPublicKey = { n, e };
+            rsaPrivateKey = { n, d };
+            
+            showResult('rsa', `Keys Generated!\n\nPublic Key (n, e): (${n}, ${e})\nPrivate Key (n, d): (${n}, ${d})\n\nφ(n) = ${phi}`);
+        }
+
+        function rsaEncrypt() {
+            const message = parseInt(document.getElementById('rsa-input').value);
+            
+            if (rsaPublicKey.n === 0) {
+                generateRSAKeys();
+            }
+            
+            if (message >= rsaPublicKey.n) {
+                showResult('rsa', `Error: Message must be less than n (${rsaPublicKey.n})`);
+                return;
+            }
+            
+            const encrypted = modPow(message, rsaPublicKey.e, rsaPublicKey.n);
+            showResult('rsa', `Encrypted: ${encrypted}\n\nFormula: ${message}^${rsaPublicKey.e} mod ${rsaPublicKey.n} = ${encrypted}`);
+        }
+
+        function rsaDecrypt() {
+            const ciphertext = parseInt(document.getElementById('rsa-input').value);
+            
+            if (rsaPrivateKey.n === 0) {
+                generateRSAKeys();
+            }
+            
+            const decrypted = modPow(ciphertext, rsaPrivateKey.d, rsaPrivateKey.n);
+            showResult('rsa', `Decrypted: ${decrypted}\n\nFormula: ${ciphertext}^${rsaPrivateKey.d} mod ${rsaPrivateKey.n} = ${decrypted}`);
+        }
+
+        function showResult(algo, text) {
+            const resultDiv = document.getElementById(algo + '-result');
+            const outputDiv = document.getElementById(algo + '-output');
+            outputDiv.textContent = text;
+            resultDiv.classList.add('show');
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
