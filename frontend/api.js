@@ -1,8 +1,4 @@
-// API Communication Layer
 
-/**
- * Make HTTP request to backend API
- */
 async function apiRequest(endpoint, method = 'GET', data = null) {
     const url = `${CONFIG.API_BASE_URL}${endpoint}`;
     
@@ -32,9 +28,7 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     }
 }
 
-/**
- * Check API health status
- */
+
 async function checkAPIHealth() {
     try {
         const response = await apiRequest(CONFIG.ENDPOINTS.HEALTH, 'GET');
@@ -46,9 +40,7 @@ async function checkAPIHealth() {
     }
 }
 
-/**
- * Update API status indicator
- */
+
 function updateAPIStatus(isOnline) {
     const indicator = document.getElementById('api-indicator');
     const statusText = document.getElementById('api-status-text');
@@ -66,9 +58,7 @@ function updateAPIStatus(isOnline) {
     }
 }
 
-/**
- * Show loading state on button
- */
+
 function setButtonLoading(button, isLoading) {
     const btnText = button.querySelector('.btn-text');
     const spinner = button.querySelector('.loading-spinner');
@@ -84,9 +74,7 @@ function setButtonLoading(button, isLoading) {
     }
 }
 
-/**
- * Display result with metadata
- */
+
 function displayResult(algo, output, metadata = null) {
     const resultDiv = document.getElementById(`${algo}-result`);
     const outputDiv = document.getElementById(`${algo}-output`);
@@ -107,9 +95,7 @@ function displayResult(algo, output, metadata = null) {
     resultDiv.classList.add('show');
 }
 
-/**
- * Show error message
- */
+
 function showError(algo, message) {
     const resultDiv = document.getElementById(`${algo}-result`);
     const outputDiv = document.getElementById(`${algo}-output`);
@@ -118,7 +104,7 @@ function showError(algo, message) {
     outputDiv.style.color = 'var(--accent-tertiary)';
     resultDiv.classList.add('show');
     
-    // Reset color after 3 seconds
+
     setTimeout(() => {
         outputDiv.style.color = 'var(--accent-primary)';
     }, 3000);
